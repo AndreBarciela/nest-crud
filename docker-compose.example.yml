@@ -1,0 +1,29 @@
+version: '3.4'
+
+services:
+  app:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    image: crud-nest
+    container_name: crud-nest
+    command: yarn run start:dev
+    ports:
+      - 3000:3000
+    volumes:
+      - .:/app
+    working_dir: '/app'
+    env_file:
+      - .env
+
+  postgres:
+    image: postgres:14.3-alpine
+    container_name: postgres
+    ports:
+      - 5432:5432
+    volumes:
+      - ~/projetos/docker/postgres:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_PASSWORD=Q12345
+      - POSTGRES_USER=crud_nest_user
+      - POSTGRES_DB=crud_nest_db
