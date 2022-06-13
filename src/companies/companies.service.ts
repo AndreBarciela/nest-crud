@@ -66,7 +66,7 @@ export class CompaniesService {
     });
 
     if (!company) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Company not found`);
     }
 
     return company;
@@ -85,15 +85,15 @@ export class CompaniesService {
       return await this.employeeRepository.save(employeeUpdated);
     });
 
-    if (!updateCompanyDto.name && !updateCompanyDto.address) {
-      return await this.findOne(id);
+    if (updateCompanyDto.name || updateCompanyDto.address) {
+      const companyUpdated = new Company();
+      companyUpdated.name = updateCompanyDto.name;
+      companyUpdated.address = updateCompanyDto.address;
+
+      await this.companyRepository.update({ id }, companyUpdated);
     }
 
-    const companyUpdated = new Company();
-    companyUpdated.name = updateCompanyDto.name;
-    companyUpdated.address = updateCompanyDto.address;
-
-    return await this.companyRepository.update({ id }, companyUpdated);
+    return await this.findOne(id);
   }
 
   async remove(id: number) {

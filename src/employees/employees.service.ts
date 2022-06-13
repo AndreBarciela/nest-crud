@@ -33,7 +33,7 @@ export class EmployeesService {
   async findCompanies(
     employeeCompanyDto: EmployeeCompanyDto[],
   ): Promise<Company[]> {
-    if (employeeCompanyDto.length === 0) return null;
+    if (employeeCompanyDto?.length === 0) return null;
 
     return await this.companyRepository.findBy(employeeCompanyDto);
   }
