@@ -1,5 +1,6 @@
 import { TypeOrmModuleOptions } from '@nestjs/typeorm';
-import { Employee } from 'src/employees/entities/employee.entity';
+import { Employee } from '../../employees/entities/employee.entity';
+import { Company } from '../../companies/entities/company.entity';
 
 export function parseDatabaseConfig(): TypeOrmModuleOptions {
   return {
@@ -11,7 +12,7 @@ export function parseDatabaseConfig(): TypeOrmModuleOptions {
     name: process.env.DB_NAME,
     database: process.env.DB_NAME,
 
-    entities: [Employee],
+    entities: [Employee, Company],
 
     migrationsTableName: 'migration',
     migrations: ['dist/migrations/*.ts'],

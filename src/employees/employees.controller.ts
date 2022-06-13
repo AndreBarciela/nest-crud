@@ -6,10 +6,12 @@ import {
   Patch,
   Param,
   Delete,
+  Query,
 } from '@nestjs/common';
 import { EmployeesService } from './employees.service';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { UpdateEmployeeDto } from './dto/update-employee.dto';
+import { FindEmployeeDto } from './dto/find-employee.dto';
 
 @Controller('employees')
 export class EmployeesController {
@@ -21,8 +23,8 @@ export class EmployeesController {
   }
 
   @Get()
-  findAll() {
-    return this.employeesService.findAll();
+  findAll(@Query() findEmployeeDto: FindEmployeeDto) {
+    return this.employeesService.findAll(findEmployeeDto);
   }
 
   @Get(':id')
