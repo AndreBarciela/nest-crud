@@ -1,12 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import {
-  DeleteResult,
-  FindManyOptions,
-  ILike,
-  Repository,
-  UpdateResult,
-} from 'typeorm';
+import { DeleteResult, FindManyOptions, ILike, Repository } from 'typeorm';
 import { Company } from '../companies/entities/company.entity';
 import { CreateEmployeeDto } from './dto/create-employee.dto';
 import { EmployeeCompanyDto } from './dto/employee-company.dto';
@@ -67,7 +61,7 @@ export class EmployeesService {
     });
 
     if (!employee) {
-      throw new NotFoundException();
+      throw new NotFoundException(`Employee not found`);
     }
 
     return employee;
@@ -76,8 +70,33 @@ export class EmployeesService {
   async update(
     id: number,
     updateEmployeeDto: UpdateEmployeeDto,
-  ): Promise<UpdateResult> {
-    return await this.employeeRepository.update({ id }, updateEmployeeDto);
+  ): Promise<Employee> {
+    const employee = await this.findOne(id);
+
+    updateEmployeeDto.companies.map(async (company) => {
+      const companyUpdated = await this.companyRepository.findOne({
+        where: { cnpj: company.cnpj },
+        relations: ['employees'],
+      });
+      companyUpdated.employees = [...companyUpdated.employees, employee];
+
+      return await this.companyRepository.save(companyUpdated);
+    });
+
+    if (
+      updateEmployeeDto.name ||
+      updateEmployeeDto.address ||
+      updateEmployeeDto.email
+    ) {
+      const employeeUpdated = new Employee();
+      employeeUpdated.name = updateEmployeeDto.name;
+      employeeUpdated.email = updateEmployeeDto.email;
+      employeeUpdated.address = updateEmployeeDto.address;
+
+      await this.employeeRepository.update({ id }, employeeUpdated);
+    }
+
+    return await this.findOne(id);
   }
 
   async remove(id: number): Promise<DeleteResult> {

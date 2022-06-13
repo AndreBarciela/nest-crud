@@ -17,7 +17,7 @@ export class CompaniesService {
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto) {
-    const employees = await this.employeeRepository.findBy(
+    let employees = await this.employeeRepository.findBy(
       createCompanyDto.employees,
     );
 
@@ -26,7 +26,12 @@ export class CompaniesService {
         ({ cpf: id1 }) => !employees.some(({ cpf: id2 }) => id2 === id1),
       );
 
-      await this.employeeRepository.save(results);
+      const employeesSaved = await this.employeeRepository.save(results);
+
+      employees = {
+        ...employees,
+        ...employeesSaved,
+      };
     }
 
     const company = new Company();
