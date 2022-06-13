@@ -3,6 +3,7 @@ import {
   IsArray,
   IsNotEmpty,
   IsNumberString,
+  IsOptional,
   IsString,
   Validate,
   ValidateNested,
@@ -26,6 +27,7 @@ export class CreateCompanyDto {
   @IsNotEmpty()
   address: string;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => CompanyEmployeeDto)

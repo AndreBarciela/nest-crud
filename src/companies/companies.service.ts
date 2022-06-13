@@ -17,30 +17,37 @@ export class CompaniesService {
   ) {}
 
   async create(createCompanyDto: CreateCompanyDto) {
-    let employees = await this.employeeRepository.findBy(
-      createCompanyDto.employees,
-    );
-
-    if (employees.length < createCompanyDto.employees.length) {
-      const results = createCompanyDto.employees.filter(
-        ({ cpf: id1 }) => !employees.some(({ cpf: id2 }) => id2 === id1),
-      );
-
-      const employeesSaved = await this.employeeRepository.save(results);
-
-      employees = {
-        ...employees,
-        ...employeesSaved,
-      };
-    }
-
     const company = new Company();
     company.name = createCompanyDto.name;
     company.cnpj = createCompanyDto.cnpj;
     company.address = createCompanyDto.address;
-    company.employees = employees;
+    company.employees = await this.findOrSaveEmployees(
+      createCompanyDto.employees,
+    );
 
     return await this.companyRepository.save(company);
+  }
+
+  async findOrSaveEmployees(employees): Promise<Employee[]> {
+    if (!employees) return [];
+
+    const cpfEmployees = employees.map((company) => {
+      return { cpf: company.cpf };
+    });
+    const employeesReturned = await this.employeeRepository.findBy(
+      cpfEmployees,
+    );
+
+    if (employeesReturned.length < employees.length) {
+      const results = employees.filter(
+        ({ cpf: id1 }) =>
+          !employeesReturned.some(({ cpf: id2 }) => id2 === id1),
+      );
+
+      await this.employeeRepository.save(results);
+    }
+
+    return await this.employeeRepository.findBy(cpfEmployees);
   }
 
   async findAll(findCompanyDto: FindCompanyDto) {

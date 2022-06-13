@@ -71,17 +71,7 @@ export class EmployeesService {
     id: number,
     updateEmployeeDto: UpdateEmployeeDto,
   ): Promise<Employee> {
-    const employee = await this.findOne(id);
-
-    updateEmployeeDto.companies.map(async (company) => {
-      const companyUpdated = await this.companyRepository.findOne({
-        where: { cnpj: company.cnpj },
-        relations: ['employees'],
-      });
-      companyUpdated.employees = [...companyUpdated.employees, employee];
-
-      return await this.companyRepository.save(companyUpdated);
-    });
+    await this.updateCompanyRelation(id, updateEmployeeDto);
 
     if (
       updateEmployeeDto.name ||
@@ -97,6 +87,25 @@ export class EmployeesService {
     }
 
     return await this.findOne(id);
+  }
+
+  async updateCompanyRelation(
+    id: number,
+    updateEmployeeDto: UpdateEmployeeDto,
+  ) {
+    if (!updateEmployeeDto.companies) return [];
+
+    const employee = await this.findOne(id);
+
+    updateEmployeeDto.companies.map(async (company) => {
+      const companyUpdated = await this.companyRepository.findOne({
+        where: { cnpj: company.cnpj },
+        relations: ['employees'],
+      });
+      companyUpdated.employees = [...companyUpdated.employees, employee];
+
+      return await this.companyRepository.save(companyUpdated);
+    });
   }
 
   async remove(id: number): Promise<DeleteResult> {

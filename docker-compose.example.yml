@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     image: crud-nest
     container_name: crud-nest
-    command: yarn run start:dev
+    command: sh -c "yarn install --networking-concurrency 1 && yarn run start:dev"
     ports:
       - 3000:3000
     volumes:

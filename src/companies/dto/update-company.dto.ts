@@ -20,6 +20,7 @@ export class UpdateCompanyDto {
   @IsOptional()
   address: string;
 
+  @IsOptional()
   @IsArray()
   @ValidateNested({ each: true })
   @Type(() => EmployeeCpf)
